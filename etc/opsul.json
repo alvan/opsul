@@ -1,0 +1,37 @@
+{
+    "props": {
+        "brand": "Opsul"
+    },
+    "https": {
+        "crt": "",
+        "key": "",
+        "use": false
+    },
+    "files": {
+        "dir": "www",
+        "use": true
+    },
+    "webui": {
+        "dir": "web",
+        "use": true
+    },
+    "tmpfs": {
+        "dir": "",
+        "pre": "ops-"
+    },
+    "users": [
+        {"name": "username", "pswd": "password", "code": ""}
+    ],
+    "repos": [
+        {
+            "name": "opsul",
+            "path": "",
+            "pkgs": [
+                {"name": "pack", "path": "./pack.sh"}
+            ]
+        }
+    ],
+    "tools": [
+        {"name": "git-status", "path": "app/tools/git/status.sh"}
+    ]
+}

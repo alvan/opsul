@@ -1,0 +1,54 @@
+{{define "/web/tools"}}
+    <html>
+        <head>
+            {{template "/web/_head" .}}
+            <title>Tools - {{.store.Props.brand}}</title>
+        </head>
+        <body>
+            {{template "/web/_navs" .}}
+
+            <div class="my-3">
+                <div class="px-3 pt-md-5 pb-md-4 mx-auto text-center">
+                    <h2 class="display-4">Tools</h2>
+                </div>
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <form action="/api/tools/exec" method="GET" target="_blank">
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="toolsFormFieldRepo">Repo</label>
+                                        <select id="toolsFormFieldRepo" name="repo" class="form-control">
+                                            {{range .store.Repos}}
+                                                <option value="{{.Name}}">{{.Name}}</option>
+                                            {{end}}
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-md-3">
+                                        <label for="toolsFormFieldTool">Tool</label>
+                                        <select id="toolsFormFieldTool" name="tool" class="form-control">
+                                            {{range .store.Tools}}
+                                                <option value="{{.Name}}">{{.Name}}</option>
+                                            {{end}}
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-md-6">
+                                        <label for="toolsFormFieldArgs">Args</label>
+                                        <input id="toolsFormFieldArgs" name="args" type="text" class="form-control" placeholder="Space separated arguments">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{template "/web/_foot" .}}
+        </body>
+    </html>
+{{end}}

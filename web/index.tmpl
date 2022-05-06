@@ -1,0 +1,59 @@
+{{define "/web/index"}}
+    {{if eq .state.path "/web/index"}}
+        <html>
+            <head>
+                {{template "/web/_head" .}}
+                <title>Dashboard - {{.store.Props.brand}}</title>
+            </head>
+            <body>
+                {{template "/web/_navs" .}}
+
+                <div class="my-3">
+                    <div class="px-3 pt-md-5 pb-md-4 mx-auto text-center">
+                        <h2 class="display-4">Dashboard</h2>
+                    </div>
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6 mt-2">
+                                <div class="card">
+                                    <div class="card-header text-center">
+                                        Tasks
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Total number of tasks: {{len .store.Tasks}}</h5>
+                                        <p class="card-text">
+                                        </p>
+                                        <a href="/web/tasks" class="btn btn-primary">View tasks</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 mt-2">
+                                <div class="card">
+                                    <div class="card-header text-center">
+                                        Tools
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Total number of tools: {{len .store.Tools}}</h5>
+                                        <p class="card-text">
+                                        </p>
+                                        <a href="/web/tools" class="btn btn-primary">View tools</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{template "/web/_foot" .}}
+            </body>
+        </html>
+    {{else if eq .state.path "/web/tasks"}}
+        {{template "/web/tasks" .}}
+    {{else if eq .state.path "/web/tools"}}
+        {{template "/web/tools" .}}
+    {{else}}
+        404 page not found
+    {{end}}
+{{end}}

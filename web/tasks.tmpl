@@ -1,0 +1,184 @@
+{{define "/web/tasks"}}
+    <html>
+        <head>
+            {{template "/web/_head" .}}
+            <title>Tasks - {{.store.Props.brand}}</title>
+        </head>
+        <body>
+            {{template "/web/_navs" .}}
+
+            <div class="my-3">
+                <div class="px-3 pt-md-5 pb-md-4 mx-auto text-center">
+                    <h2 class="display-4">Tasks</h2>
+                </div>
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 table-responsive" style="{{if len .store.Tasks}}min-height:200px{{end}}">
+                            <table id="tasksList" class="table table-hover table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Repo</th>
+                                        <th scope="col">Pack</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Tags</th>
+                                        <th scope="col">Stat</th>
+                                        <th scope="col">Logs</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{range .store.Tasks}}
+                                        <tr>
+                                            <th scope="row" title="{{.Id}}" class="text-break">{{.Id}}</th>
+                                            <td>{{.Repo}}</td>
+                                            <td>{{.Pack}}</td>
+                                            <td>{{.Name}}</td>
+                                            <td>{{join .Tags " "}}</td>
+                                            <td>{{.Stat}}</td>
+                                            <td><ul>{{range .Logs}}<li>{{.}}</li>{{end}}</ul></td>
+                                            <td class="text-center">
+                                                <a class="px-1" href="/api/tasks/read?id={{.Id}}&name={{.Name}}&mode=tail&size=10&auto=1" target="_blank" title="Read the last few lines of the result"><i class="far fa-file-alt"></i></a>
+                                                <div class="dropdown">
+                                                    <a class="px-1" href="javascript:;" data-toggle="dropdown" title="Operations" aria-haspopup="true" aria-expanded="false">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </a>
+                                                    <div class="dropdown-menu">
+                                                        <span class="dropdown-item-text text-nowrap"># {{.Id}}</span>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item" href="/api/tasks/read?id={{.Id}}&name={{.Name}}" target="_blank" title="Read Result"><i class="fas fa-file-alt text-center" style="width: 1rem"></i> Read Result</a>
+                                                        <a class="dropdown-item" href="/api/tasks?id={{.Id}}&name={{.Name}}" target="_blank" title="View Record"><i class="fas fa-file-code text-center" style="width: 1rem"></i> View Record</a>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item post_link" href="javascript:;" title="Stop Task" data-action="/api/tasks/stop?id={{.Id}}&name={{.Name}}"><i class="far fa-stop-circle text-danger text-center" style="width: 1rem"></i> Stop Task</a>
+                                                        <a class="dropdown-item post_link" href="javascript:;" title="Drop Task" data-action="/api/tasks/drop?id={{.Id}}&name={{.Name}}"><i class="far fa-trash-alt text-danger text-center" style="width: 1rem"></i> Drop Task</a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="col-12">
+                            <form id="tasksForm" action="javascript:void(0);" method="POST">
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="tasksFormFieldRepo">Repo</label>
+                                        <select id="tasksFormFieldRepo" name="repo" class="form-control">
+                                            {{range .store.Repos}}
+                                                <option data-pkgs="{{.ListNameOfPack | json | printf "%s"}}" value="{{.Name}}">{{.Name}}</option>
+                                            {{end}}
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="tasksFormFieldPack">Pack</label>
+                                        <select id="tasksFormFieldPack" name="pack" class="form-control">
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="tasksFormFieldArgs">Args</label>
+                                        <input id="tasksFormFieldArgs" name="args" type="text" class="form-control" placeholder="Space separated arguments">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="tasksFormFieldName">Name</label>
+                                        <input id="tasksFormFieldName" name="name" type="text" class="form-control" value="-" placeholder="Unique name" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="tasksFormFieldTags">Tags</label>
+                                        <input id="tasksFormFieldTags" name="tags" type="text" class="form-control" value="" placeholder="Space separated tags">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="tasksFormFieldHook">Hook</label>
+                                        <input id="tasksFormFieldHook" name="hook" type="text" class="form-control" value="" placeholder="https://">
+                                    </div>
+                                    <div class="input-group col-md-12 mb-3">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="tasksFormFieldType">Content-Type</label>
+                                        </div>
+                                        <input id="tasksFormFieldType" type="text" class="form-control" value="application/x-www-form-urlencoded; charset=UTF-8">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-light border dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="sr-only">Toggle Content Type Dropdown</span>
+                                            </button>
+                                            <div id="tasksFormInputType" class="dropdown-menu">
+                                                <a class="dropdown-item" href="javascript:;">text/plain; charset=UTF-8</a>
+                                                <a class="dropdown-item" href="javascript:;">application/json; charset=UTF-8</a>
+                                                <a class="dropdown-item" href="javascript:;">application/x-www-form-urlencoded; charset=UTF-8</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="input-group col-md-12 mb-3">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="tasksFormFieldBody">Request Body</label>
+                                        </div>
+                                        <textarea id="tasksFormFieldBody" class="form-control" rows="3"></textarea>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
+                                <a class="btn btn-light btn-lg btn-block" href="javascript:location.reload()" role="button">Reload</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    $(function() {
+                        $('#tasksList .post_link').click(function() {
+                            var link = $(this);
+                            if (confirm(link.prop('title') + '?')) {
+                                $.post(link.data('action')).done(function(data) {
+                                    if (confirm('Done! Do you want to reload the page?')) {
+                                        location.reload();
+                                    }
+                                }).fail(function(resp) {
+                                    alert(resp && resp.responseJSON && resp.responseJSON.errs ? resp.responseJSON.errs.join("\n") : "Failed!");
+                                });
+                            }
+
+                            return false;
+                        });
+
+                        $("#tasksForm").submit(function() {
+                            var form = $(this);
+                            $.ajax({
+                                url: '/api/tasks?' + $.param(form.serializeArray()),
+                                data: $('#tasksFormFieldBody').val(),
+                                method: form.prop('method'),
+                                contentType: $('#tasksFormFieldType').val()
+                            }).done(function() {
+                                if (confirm('Done! Do you want to reload the page?')) {
+                                    location.reload();
+                                }
+                            }).fail(function(resp) {
+                                alert(resp && resp.responseJSON && resp.responseJSON.errs ? resp.responseJSON.errs.join("\n") : "Failed!");
+                            });
+
+                            return false;
+                        });
+
+                        $('#tasksFormInputType .dropdown-item').click(function() {
+                            $('#tasksFormFieldType').val($(this).text());
+                        });
+
+                        $('#tasksFormFieldRepo').change(function() {
+                            var pkgs = $(this).find(':selected').data('pkgs');
+                            $('#tasksFormFieldPack').empty().append(
+                                pkgs && pkgs.length ? $.map(pkgs, function(name) {
+                                    return $('<option/>', {
+                                        'value': name,
+                                        'text': name
+                                    })
+                                }) : []
+                            );
+                        }).change();
+                    });
+                </script>
+            </div>
+
+            {{template "/web/_foot" .}}
+        </body>
+    </html>
+{{end}}
